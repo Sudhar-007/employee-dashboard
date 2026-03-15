@@ -44,7 +44,7 @@ simultaneous POST requests to the API. One request succeeded while the
 other failed, triggering the catch block and showing "Failed to fetch data" 
 despite valid data being returned.
 Fixed by:
-1. Removing StrictMode from main.jsx
-2. Adding AbortController to cancel the first fetch on cleanup, 
-   so only the second request completes. AbortError is caught and 
-   ignored separately from real network errors.
+  1. Removing StrictMode from main.jsx
+  2. Adding AbortController to cancel the first fetch on cleanup, 
+     so only the second request completes. AbortError is caught and 
+     ignored separately from real network errors.
