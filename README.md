@@ -6,6 +6,8 @@ A 4-screen React application built as an internship assignment.
 - React (Vite)
 - React Router DOM
 - Raw CSS (no UI libraries)
+- Leaflet / React-Leaflet (map only)
+
 
 ## Progress
 - [x] Screen 1 - Login with Auth Context + localStorage persistence
@@ -14,6 +16,19 @@ A 4-screen React application built as an internship assignment.
 - [x] Screen 4 - Analytics, SVG Chart, Map
 - [x] Intentional bug documented
 - [x] Screen recording
+
+## Screens
+1. **Login** — Context API auth, localStorage persistence, protected routes
+2. **List** — Employee grid with custom virtualization
+3. **Details** — Camera capture, canvas signature, blob merge
+4. **Analytics** — Audit image, SVG salary chart, Leaflet city map
+
+## Running Locally
+```bash
+npm install
+npm run dev
+```
+Login credentials: `testuser` / `Test123`
 
 ## Virtualization Math
 Each row is a fixed 48px height. On scroll, startIndex and endIndex 
@@ -26,6 +41,19 @@ startIndex = Math.floor(scrollTop / ROW_HEIGHT) - BUFFER
 endIndex = startIndex + Math.ceil(VISIBLE_HEIGHT / ROW_HEIGHT) + BUFFER * 2
 visibleEmployees = employees.slice(startIndex, endIndex)
 offsetY = startIndex * ROW_HEIGHT
+
+## Image Merging (Blob Merge)
+
+Two canvases are used — one for the captured photo, one for the signature.
+
+1. Camera frame is drawn onto a hidden canvas using drawImage(video, 0, 0)
+2. Signature is drawn on a transparent overlay canvas via mouse events
+3. A third final canvas is created
+4. Photo is drawn onto final canvas first as layer 1
+5. Signature canvas is drawn on top as layer 2
+6. final.toDataURL('image/png') exports both layers as one Base64 string
+7. Stored in localStorage, displayed as audit image on analytics page
+
 
 ## Intentional Bug
 
