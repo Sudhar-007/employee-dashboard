@@ -1,16 +1,23 @@
-# React + Vite
+# Employee Insights Dashboard
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A 4-screen React application built as an internship assignment.
 
-Currently, two official plugins are available:
+## Tech Stack
+- React (Vite)
+- React Router DOM
+- Raw CSS (no UI libraries)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Progress
+- [x] Screen 1 - Login with Auth Context + localStorage persistence
+- [x] Screen 2 - Employee List with custom virtualization
+- [ ] Screen 3 - Details, Camera, Signature, Blob Merge
+- [ ] Screen 4 - Analytics, SVG Chart, Map
+- [ ] Intentional bug documented
+- [ ] Screen recording
 
-## React Compiler
+## Virtualization Math
+Each row is a fixed 48px height. On scroll, startIndex and endIndex are calculated from scrollTop divided by ROW_HEIGHT. Only the visible slice of employees is rendered, offset by translateY to maintain correct scroll position. Total container height stays at employees.length * ROW_HEIGHT so the scrollbar remains accurate.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## Debugging Notes
+- API returned nested structure TABLE_DATA.data instead of a flat array
+- Each employee is an array not an object — fields accessed by index (emp[0]=name, emp[2]=city, emp[3]=id, emp[5]=salary)
