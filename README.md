@@ -36,3 +36,15 @@ as canvas.width / rect.width and multiplying coordinates by scale factors.
 photoCanvasRef was null during mergeAndSave because canvas unmounts 
 when phase changes. Fixed by loading photo state as Image object 
 and drawing from that instead of the canvas ref.
+
+- **React StrictMode Double Fetch**
+In development, React StrictMode intentionally mounts components twice 
+to detect side effects. This caused useEffect to fire twice, sending two 
+simultaneous POST requests to the API. One request succeeded while the 
+other failed, triggering the catch block and showing "Failed to fetch data" 
+despite valid data being returned.
+Fixed by:
+1. Removing StrictMode from main.jsx
+2. Adding AbortController to cancel the first fetch on cleanup, 
+   so only the second request completes. AbortError is caught and 
+   ignored separately from real network errors.
