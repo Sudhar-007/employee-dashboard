@@ -16,22 +16,29 @@ function List() {
     const containerRef = useRef(null)
 
     useEffect(() => {
+    const controller = new AbortController()
+        
     fetch('https://backend.jotish.in/backend_dev/gettabledata.php', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username: 'test', password: '123456' })
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ username: 'test', password: '123456' }),
+    signal: controller.signal
     })
-        .then(res => res.json())
-        .then(data => {
-        setEmployees(data.TABLE_DATA.data)
+    .then(res => res.json())
+    .then(data => {
+        const arr = data.TABLE_DATA.data
+        setEmployees(arr)
+        localStorage.setItem('employees', JSON.stringify(arr))
         setLoading(false)
-        })
-        .catch(() => {
+    })
+    .catch(err => {
+            if (err.name === 'AbortError') return
         setError('Failed to fetch data')
         setLoading(false)
-        })
-    }, [])
+    })
 
+    return () => controller.abort()
+}, [])
     const handleScroll = useCallback(() => {
     if (containerRef.current) {
         setScrollTop(containerRef.current.scrollTop)

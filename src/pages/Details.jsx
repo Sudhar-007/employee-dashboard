@@ -20,14 +20,20 @@ function Details() {
   // Start camera
     const startCamera = async () => {
     try {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: true })
-        streamRef.current = stream
-        videoRef.current.srcObject = stream
-        setPhase('camera')
+    const stream = await navigator.mediaDevices.getUserMedia({ video: true })
+    streamRef.current = stream
+    setPhase('camera')
+    // Wait for video element to render before setting stream
+    setTimeout(() => {
+        if (videoRef.current) {
+            videoRef.current.srcObject = stream
+        }
+    }, 100)
     } catch (err) {
-        alert('Camera access denied or unavailable')
+        console.log('Camera error:', err.name, err.message)
+        alert(`Camera error: ${err.name} - ${err.message}`)
     }
-    }
+}
 
   // Capture photo from video frame
     const capturePhoto = () => {
@@ -44,44 +50,58 @@ function Details() {
     }
 
   // Signature drawing
-    const startDrawing = (e) => {
+const startDrawing = (e) => {
     isDrawing.current = true
-    const ctx = signatureCanvasRef.current.getContext('2d')
-    const rect = signatureCanvasRef.current.getBoundingClientRect()
+    const canvas = signatureCanvasRef.current
+    const ctx = canvas.getContext('2d')
+    const rect = canvas.getBoundingClientRect()
+    const scaleX = canvas.width / rect.width
+    const scaleY = canvas.height / rect.height
     ctx.beginPath()
-    ctx.moveTo(e.clientX - rect.left, e.clientY - rect.top)
-    }
+    ctx.moveTo(
+    (e.clientX - rect.left) * scaleX,
+    (e.clientY - rect.top) * scaleY
+    )
+}
 
-    const draw = (e) => {
+const draw = (e) => {
     if (!isDrawing.current) return
-    const ctx = signatureCanvasRef.current.getContext('2d')
-    const rect = signatureCanvasRef.current.getBoundingClientRect()
-    ctx.lineWidth = 2
+    const canvas = signatureCanvasRef.current
+    const ctx = canvas.getContext('2d')
+    const rect = canvas.getBoundingClientRect()
+    const scaleX = canvas.width / rect.width
+    const scaleY = canvas.height / rect.height
+    ctx.lineWidth = 2 / scaleX  // normalize line width to display size
     ctx.lineCap = 'round'
     ctx.strokeStyle = '#ff0000'
-    ctx.lineTo(e.clientX - rect.left, e.clientY - rect.top)
+    ctx.lineTo(
+    (e.clientX - rect.left) * scaleX,
+    (e.clientY - rect.top) * scaleY
+    )
     ctx.stroke()
-    }
-
+}
     const stopDrawing = () => { isDrawing.current = false }
 
   // Set up signature canvas size when phase changes
     useEffect(() => {
-    if (phase === 'signature' && signatureCanvasRef.current) {
-        signatureCanvasRef.current.width = photoCanvasRef.current.width
-        signatureCanvasRef.current.height = photoCanvasRef.current.height
+    if (phase === 'signature' && signatureCanvasRef.current && photoCanvasRef.current) {
+    signatureCanvasRef.current.width = photoCanvasRef.current.width
+    signatureCanvasRef.current.height = photoCanvasRef.current.height
     }
-    }, [phase])
+}, [phase])
 
   // BLOB MERGE — draw photo then signature onto final canvas
-    const mergeAndSave = () => {
+const mergeAndSave = () => {
     const final = document.createElement('canvas')
-    final.width = photoCanvasRef.current.width
-    final.height = photoCanvasRef.current.height
+    const img = new Image()
+    img.src = photo
+    img.onload = () => {
+    final.width = img.width
+    final.height = img.height
     const ctx = final.getContext('2d')
 
     // Layer 1 — photo
-    ctx.drawImage(photoCanvasRef.current, 0, 0)
+    ctx.drawImage(img, 0, 0)
     // Layer 2 — signature on top
     ctx.drawImage(signatureCanvasRef.current, 0, 0)
 
@@ -90,6 +110,7 @@ function Details() {
     localStorage.setItem('auditImage', merged)
     setPhase('done')
     }
+}
 
     return (
     <div style={styles.container}>
