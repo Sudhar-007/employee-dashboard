@@ -13,7 +13,7 @@ A 4-screen React application built as an internship assignment.
 - [x] Screen 3 - Details, Camera, Signature, Blob Merge
 - [x] Screen 4 - Analytics, SVG Chart, Map
 - [x] Intentional bug documented
-- [ ] Screen recording
+- [x] Screen recording
 
 ## Virtualization Math
 Each row is a fixed 48px height. On scroll, startIndex and endIndex 
