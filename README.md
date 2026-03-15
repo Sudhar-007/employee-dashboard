@@ -10,13 +10,47 @@ A 4-screen React application built as an internship assignment.
 ## Progress
 - [x] Screen 1 - Login with Auth Context + localStorage persistence
 - [x] Screen 2 - Employee List with custom virtualization
-- [ ] Screen 3 - Details, Camera, Signature, Blob Merge
-- [ ] Screen 4 - Analytics, SVG Chart, Map
-- [ ] Intentional bug documented
+- [x] Screen 3 - Details, Camera, Signature, Blob Merge
+- [x] Screen 4 - Analytics, SVG Chart, Map
+- [x] Intentional bug documented
 - [ ] Screen recording
 
 ## Virtualization Math
-Each row is a fixed 48px height. On scroll, startIndex and endIndex are calculated from scrollTop divided by ROW_HEIGHT. Only the visible slice of employees is rendered, offset by translateY to maintain correct scroll position. Total container height stays at employees.length * ROW_HEIGHT so the scrollbar remains accurate.
+Each row is a fixed 48px height. On scroll, startIndex and endIndex 
+are calculated from scrollTop divided by ROW_HEIGHT. Only the visible 
+slice of employees is rendered, offset by translateY to maintain correct 
+scroll position. Total container height stays at employees.length * ROW_HEIGHT 
+so the scrollbar remains accurate.
+
+startIndex = Math.floor(scrollTop / ROW_HEIGHT) - BUFFER
+endIndex = startIndex + Math.ceil(VISIBLE_HEIGHT / ROW_HEIGHT) + BUFFER * 2
+visibleEmployees = employees.slice(startIndex, endIndex)
+offsetY = startIndex * ROW_HEIGHT
+
+## Intentional Bug
+
+**Location:** `src/pages/List.jsx` — handleScroll useCallback
+
+**What it is:** handleScroll is memoized with useCallback with an empty 
+dependency array []. If the employees array were to update after initial 
+mount, handleScroll would reference a stale closure of the old employees 
+value rather than the updated one.
+
+**Type:** Stale closure — missing dependency in useCallback
+
+**Why I chose it:** This is a subtle React lifecycle bug that doesn't 
+break current functionality since employees loads once on mount. However 
+if the component were extended to support real-time data updates or 
+filtering, the stale closure would cause handleScroll to reference 
+outdated employee data. It demonstrates understanding of React's 
+memoization and closure behaviour without breaking the working app.
+
+## Geospatial Mapping
+The API returns only city names without coordinates. Cities are matched 
+to lat/lng via a static CITY_COORDS lookup table in Analytics.jsx. 
+Each unique city from the dataset is checked against this table and 
+rendered as a Leaflet Marker if coordinates exist.
+
 
 ## Debugging Notes
 - API returned nested structure TABLE_DATA.data instead of a flat array
@@ -37,7 +71,7 @@ photoCanvasRef was null during mergeAndSave because canvas unmounts
 when phase changes. Fixed by loading photo state as Image object 
 and drawing from that instead of the canvas ref.
 
-- **React StrictMode Double Fetch**
+- **React StrictMode Double Fetch** :
 In development, React StrictMode intentionally mounts components twice 
 to detect side effects. This caused useEffect to fire twice, sending two 
 simultaneous POST requests to the API. One request succeeded while the 
