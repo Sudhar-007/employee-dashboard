@@ -42,9 +42,7 @@ In development, React StrictMode intentionally mounts components twice
 to detect side effects. This caused useEffect to fire twice, sending two 
 simultaneous POST requests to the API. One request succeeded while the 
 other failed, triggering the catch block and showing "Failed to fetch data" 
-despite valid data being returned.
-
-Fixed by adding AbortController to the fetch in List.jsx. When StrictMode 
+despite valid data being returned.Fixed by adding AbortController to the fetch in List.jsx. When StrictMode 
 unmounts and remounts the component, the cleanup function calls 
 controller.abort() which cancels the first in-flight request. The second 
 request completes cleanly. AbortError is caught separately and ignored 
