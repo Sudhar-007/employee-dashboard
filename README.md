@@ -43,8 +43,9 @@ to detect side effects. This caused useEffect to fire twice, sending two
 simultaneous POST requests to the API. One request succeeded while the 
 other failed, triggering the catch block and showing "Failed to fetch data" 
 despite valid data being returned.
-Fixed by:
-  1. Removing StrictMode from main.jsx
-  2. Adding AbortController to cancel the first fetch on cleanup, 
-     so only the second request completes. AbortError is caught and 
-     ignored separately from real network errors.
+
+Fixed by adding AbortController to the fetch in List.jsx. When StrictMode 
+unmounts and remounts the component, the cleanup function calls 
+controller.abort() which cancels the first in-flight request. The second 
+request completes cleanly. AbortError is caught separately and ignored 
+since it is an expected cancellation, not a real network failure.
